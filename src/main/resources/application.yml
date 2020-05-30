@@ -1,0 +1,9 @@
+server:
+  port: 8070
+
+apiGateway: http://localhost:8060
+
+oauth:
+  tokenUrl: ${apiGateway}/oauth/token
+  clientId: a-wrp
+  clientSecret: 123456

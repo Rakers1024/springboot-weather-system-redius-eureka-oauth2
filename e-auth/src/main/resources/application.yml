@@ -1,0 +1,22 @@
+server:
+   port: 8080
+
+spring:
+   application:
+      name: auth-service
+      
+eureka:
+   client:
+      serviceUrl:
+         defaultZone: http://localhost:8010/eureka
+
+logging:
+   level:
+      org.springframework.security: info
+      
+auth:
+   scope:
+      scopeMap:
+         report: [/csv/cities, /wsv/cityId]
+         demo-scope: [/wsv/cityName, /csv/cities]
+

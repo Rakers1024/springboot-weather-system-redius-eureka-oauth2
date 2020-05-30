@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>天气预报</title>
+
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script src="js/arttemplate.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<h3 class="col-xs-2 col-md-2">天气预报</h3>
+			<select class="col-xs-2 col-md-2" id="selectCityId" onchange="onChangeSelect($(this).val())">
+			</select>
+		</div>
+		
+		<div class="row">
+			<h1 class="text-success" id="city"></h1>
+		</div>
+		<div class="row">
+			<p>
+				当前温度：<span id="wendu"></span>
+			</p>
+		</div>
+		<div class="row">
+			<p>
+				温馨提示：<span id="ganmao"></span>
+			</p>
+		</div>
+
+		<div class="row" id="forecast">
+		</div>
+	</div>
+
+	<script type="text/html" id="tplSelect">
+		{{each cityList as city i}}		
+			<option value="{{city.cityId}}">{{city.cityName}}</option>
+		{{/each}}
+	</script>
+
+	<script type="text/html" id="tplCardList">
+		{{each forecastList as f i}}	
+			<div class="card border-info">
+				<div class="card-body text-info">
+					<p class="card-text">{{f.date}}</p>
+					<p class="card-text">{{f.type}}</p>
+					<p class="card-text">{{f.high}}</p>
+					<p class="card-text">{{f.low}}</p>
+					<p class="card-text">{{f.fengxiang}}</p>
+				</div>
+			</div>
+		{{/each}}
+	</script>
+		
+	<script>
+		var cityList = null;
+		
+		$(document).ready(function(){
+			initSelect();
+			onChangeSelect(cityList[0].cityId);
+		});
+		
+		function initSelect(){
+			var url = "/weather/cities";
+			$.ajax({
+				type : 'GET',
+				async: false,
+				cache: false,
+				dataType: "json",
+				url : url,
+				success: function(data){
+					cityList = data;
+					var html = template("tplSelect", {cityList: cityList});
+					$("#selectCityId").append(html);
+				},
+				
+				error: function(data){
+					alert(data.responseText);
+					throw "获取城市数据失败";
+				}
+			});
+		}
+		
+		function onChangeSelect(cityId){
+			var url = "/weather/cityId/" + cityId;
+			$.ajax({
+				type : 'GET',
+				async: false,
+				cache: false,
+				dataType: "json",
+				url : url,
+				success: function(data){
+					$("#city").text(data.city);
+					$("#wendu").text(data.wendu);
+					$("#ganmao").text(data.ganmao);
+					
+					var forecastHtml = template("tplCardList", {forecastList: data.forecast});
+					$("#forecast").html(forecastHtml);
+				},
+				
+				error: function(data){
+					var err = JSON.parse(data.responseText).message;
+					alert(err);
+					
+					throw "获取天气数据失败";
+				}				
+			});
+		}
+	</script>
+
+</body>
+</html>
